@@ -1,0 +1,124 @@
+Introduction 
+Microbial populations operate under constant trade-offs between energy acquisition and maintenance burden. Cells must construct and maintain nutrient uptake pathways — here modeled as channels — to survive in resource-limited environments. However, these channels incur energetic costs, influencing division timing, mortality risk, and long-term fitness. Our study is motivated by the need to understand how such cost-benefit dynamics shape microbial behavior, especially under environmental fluctuations and biological constraints.
+
+We develop a family of agent-based simulations in which individual bacteria reside on a 2D grid, absorb diffusing nutrients, build channels, and divide once their internal energy surpasses a defined threshold. Each channel corresponds to a specific nutrient type (A, B, or C), and its maintenance affects the cell’s metabolic cost. Division is probabilistic and asymmetric, with possible switching of nutrient preference. In later models, phages are introduced, targeting specific channel types. Nutrients are replenished periodically, and energy, uptake, and survival are tracked at both individual and population scales.
+
+Our objective is to identify the minimal conditions under which complex behaviors such as population persistence, phenotypic diversity, and adaptive channel allocation emerge. By incrementally increasing model complexity across five versions, we aim to clarify the specific ecological and physiological forces that drive the evolution of structured microbial communities.
+
+
+
+
+Results 
+1. Channel Cost Determines Population Viability and Channel Investment
+We began by constructing a minimal agent-based model to evaluate how the energetic cost of building nutrient uptake channels affects long-term population dynamics. In this baseline system, cells occupied a static 2D grid, absorbed a single diffusing nutrient, and divided upon reaching an energy threshold. The channel construction cost was the sole tunable parameter, applied as a fraction of nutrient uptake lost per timestep.
+
+To quantify the relationship between channel cost and survival, we ran simulations across a finely sampled cost range from 0 to 1.1, collecting two metrics: the average population lifetime and the time-averaged number of channels per cell. The resulting data confirmed our expectations: as channel cost increased, population viability declined sharply (Figure 1). Notably, we observed two lifetime peaks at intermediate costs (~0.38 and ~0.6), which remain unexplained but may result from stochastic edge effects or sensitivity to secondary parameters.
+
+In parallel, the average number of channels exhibited a sharp decline at cost ≈ 0.6 (Figure 2), transitioning from stable high-channel strategies to near-complete suppression of uptake infrastructure. This behavioral threshold aligns with the second spike in population lifetime, suggesting that when the energetic burden of channel maintenance becomes too high, cells benefit temporarily from halting further investment—even at the cost of reduced intake.
+
+These findings validate the central role of metabolic cost in shaping growth strategies and survival potential. The nonlinear response near the critical threshold highlights the system’s sensitivity to parameter tuning and hints at the existence of multiple stable regimes. To investigate how these strategies adapt under dynamic environmental conditions, we next introduced periodic nutrient pulses and inherited variability in channel content at division.
+
+
+2. Nutrient Pulses Induce Cyclical Channel Strategies and Population Oscillations
+To investigate how temporal variability in nutrient availability affects bacterial strategies, we modified the model to introduce periodic nutrient pulses. At fixed intervals, nutrients were evenly redistributed across the grid, mimicking an external environmental fluctuation. The goal was to determine how the timing of nutrient availability influences both population-level dynamics and channel distribution strategies at the single-cell level.
+
+Simulations revealed a clear cyclical pattern in bacterial behavior. Immediately following each nutrient pulse, cells with a larger number of channels gained a competitive advantage due to their higher nutrient uptake capacity. However, as nutrient levels declined, the metabolic cost of maintaining these channels outweighed their benefit. As a result, cells with fewer channels became more advantageous in later stages of each cycle. This led to an oscillatory pattern in channel distribution, with expansion dominated by high-channel phenotypes and contraction favoring minimal investment.
+
+This dynamic is captured across three complementary visualizations.
+Figure 3 shows total average energy across the population over time. Each spike corresponds to a nutrient pulse, followed by a predictable decline as the resource is consumed.
+Figure 4 illustrates population size, which reliably increases after each pulse and stabilizes at a plateau near 100 cells — a hard cap imposed by the fixed 10×10 grid size.
+Figure 5 presents a heatmap of channel distribution over time. Each vertical band represents a single nutrient cycle, with a high initial mode around 5–6 channels that gradually shifts downward as nutrient availability decreases. The consistency of this banded structure supports the interpretation of periodic strategic turnover in the population.
+
+These findings demonstrate that even under uniform spatial conditions, temporal structure alone can drive alternating resource strategies. Cells dynamically switch between aggressive uptake and energy conservation in response to external rhythms, giving rise to self-sustained cycles in energy use, growth, and investment. To explore how nutrient specialization further shapes these dynamics, we next extended the model by introducing a second nutrient type and corresponding channel type, allowing bacteria to preferentially invest in distinct uptake pathways.
+
+3. Specialization and Population Heterogeneity in Multi-Nutrient Environments
+In the third version of the model, we introduced three biologically motivated extensions: a second nutrient type with corresponding channels (A and B), a small probability of random death, and probabilistic switching of nutrient specialization at cell division. These modifications brought the model closer to natural microbial ecosystems and enabled us to investigate whether sustained population heterogeneity could emerge in environments with multiple competing resources.
+
+We first evaluated the baseline case in which nutrients A and B were replenished simultaneously and in equal amounts. As expected, both A-type and B-type populations coexisted in nearly equal proportions throughout the simulation (Figure 6), with no strong competitive exclusion. This was further supported by the evolution of the raw index (defined as the fraction of A-type channels over total channels), which remained consistently near 0.5 with minor fluctuations (Figure 7). Together, these results indicate that averaging over channel composition — rather than committing to a single specialization — remains the most robust strategy under balanced conditions.
+
+Heatmaps of channel usage (Figures 8 and 9) reinforce this conclusion. Both A-type and B-type cells exhibited similar oscillatory channel dynamics in response to periodic nutrient pulses, as seen previously in the single-nutrient case. Importantly, neither type showed a systematic trend toward expansion or decline across time, suggesting stable coexistence driven by energetic parity and synchronized resource availability.
+
+To further probe the interaction between environmental parameters and survival outcomes, we conducted a full parameter sweep across nutrient frequency and nutrient quantity. The results (Figure 10) reveal three qualitatively distinct behavioral regimes. In the lower-left corner of the sweep space (low frequency and low quantity), survival rates approach zero, representing near-certain extinction. Toward the upper-right, populations reach saturation, and division events become rare due to space constraints. In between lies a transition zone, characterized by variable survival and intermediate biomass. This phase boundary likely reflects competition-induced instability, where survival depends sensitively on initial conditions and timing.
+
+The division-rate panel (Figure 10, right) supports this interpretation. Division becomes suppressed in resource-abundant regimes where the grid is fully occupied, while near the extinction boundary, high division rates are matched by high death rates. Only in the intermediate zone do cells experience sustained growth under pressure, suggesting that dynamic constraint is essential for maintaining heterogeneity.
+
+These results imply that moderate levels of environmental stress and turnover are required to destabilize homogeneous strategies and maintain population structure. However, random death alone was insufficient to induce persistent diversification or pattern formation. This motivated our next step: the introduction of phage populations that selectively target cells based on channel type, adding external pressure and ecological feedback to the system.
+
+4. Phage-Induced Selection Reveals Phase-Like Variation in Channel Usage
+To test whether stronger external pressures could amplify heterogeneity within the population, we extended the model to include phage populations that selectively infect cells based on their dominant channel type. Each phage type (A or B) tracks the corresponding nutrient specialization of host cells, lysing them after a latent period and releasing new phage particles. Additionally, we refined the division asymmetry model by drawing partitioning ratios from a normal distribution (mean = 0.62, SD = 0.07, clamped to [0.5, 0.74]), inspired by experimental evidence of biased partitioning in multidrug efflux pumps [Bergmiller et al., 2017].
+
+The introduction of phages and partitioning bias had an immediate and visible effect on population structure. Figure 11 shows that the populations of A-dominant and B-dominant cells oscillate over time, often shifting out of phase with one another. This temporal decoupling is mirrored in Figure 12, where A-type and B-type phage populations undergo asynchronous waves of expansion and decline, shaped by their interactions with the corresponding host populations.
+
+Importantly, channel distributions became more polarized. Heatmaps of channel usage in A-type and B-type cells (Figures 13 and 14) reveal significantly sharper transitions between expansion and suppression compared to the pre-phage system. Peaks in channel number are more transient and more tightly synchronized to nutrient availability, indicating increased selective pressure. The population dynamically shifts between extremes, exhibiting what can be interpreted as phase-like variation in channel expression and cell identity.
+
+We interpret these findings as support for our hypothesis that targeted ecological suppression — such as phage predation — is essential to maintaining visible, dynamic heterogeneity. While earlier models showed oscillations, they lacked the strong selection gradients necessary to produce and maintain large phenotypic differences. Phage interactions introduce such gradients by selectively removing dominant types and thereby enabling less common variants to persist and grow.
+
+Finally, motivated by observations in real-world microbial systems where bacteria often express more than two types of nutrient transporters, we proceeded to extend the model further. In the next version, we introduce a third nutrient type (C) along with its respective channels and phages. We also increased environmental stochasticity by allowing randomized meal sizes and asynchronous feeding schedules, in order to better capture the complexity of natural microbial habitats.
+
+5. Three-Way Specialization and Stochastic Feeding Sustain Deep Population Heterogeneity
+The fifth and final version of the simulation incorporates a third nutrient and phage type (C), enabling a more realistic representation of microbial niche diversity. In addition to the new C-type channels and C-phages, we refined phage targeting to act not on cell “type” labels but directly on observed channel composition, increasing biological plausibility. Feeding schedules were also randomized to prevent deterministic synchrony: nutrient pulses occurred at regular intervals but were shifted in phase across nutrients, better mimicking environmental noise and temporal heterogeneity.
+
+These enhancements led to a marked increase in population complexity. Figure 15 shows that the bacterial population, when grouped by majority channel type, exhibits continuous phenotypic turnover. Subpopulations dominated by A-, B-, or C-type channels rise and fall over time, with no type maintaining consistent dominance. Figure 16 displays the corresponding phage dynamics. Each phage population (targeting A-, B-, or C-dominant bacteria) fluctuates independently, often oscillating out of phase with both each other and their target hosts. This asynchrony suggests that channel-based specialization, combined with temporal offset in nutrient availability and phage pressure, promotes non-linear, multi-dimensional cycling in both predator and host populations.
+
+Heatmaps of channel usage in A-, B-, and C-type cells (Figures 17–19) show that heterogeneity exists not only between types but also within them. Channel distributions broaden and narrow over time, with sublineages transiently occupying different investment strategies. These results reinforce the concept of phase-like switching, where even genetically identical cells diverge in channel investment due to asymmetric inheritance, fluctuating conditions, and competitive dynamics.
+
+To quantify the extent and persistence of this phenotypic heterogeneity, we tracked the IA index (A / [A + B + C]) and its variance over time. As shown in Figure 20, this index never stabilizes but instead fluctuates within a broad range, reflecting continuous turnover of dominant strategies. The absence of convergence supports the interpretation of the system as fundamentally non-equilibrium, shaped by the interplay of inheritance, phage targeting, nutrient oscillation, and local stochasticity.
+
+Together, these results affirm our central hypothesis: that a minimal set of biologically grounded mechanisms — stochastic inheritance, nutrient cycling, and channel-based phage predation — is sufficient to generate and sustain persistent population heterogeneity. By incorporating three nutrient types and avoiding rigid environmental schedules, the final model reproduces several qualitative features of real microbial ecosystems, including cyclic dominance, niche overlap, and ecological suppression, as seen in the human gut microbiome.
+
+
+Discussion
+
+Our simulations show that under realistic ecological constraints, even isogenic bacterial populations can develop persistent phenotypic heterogeneity. While this is a general microbial principle, it is especially relevant for gut-dwelling Bacteroides species, which are known to dynamically reconfigure their surface architecture, metabolic strategies, and transporter expression in response to environmental cues.
+
+Recent studies have shown that Bacteroides thetaiotaomicron, a prominent human gut symbiont, can switch expression of outer membrane polysaccharide utilization loci (PULs) in response to available dietary glycans. This is not a simple upregulation of a single gene but a reversible, stochastic commitment to specific functional states, mediated by regulatory mechanisms such as DNA inversion and promoter swapping. Importantly, this phenotypic plasticity allows Bacteroides cells to form subpopulations that specialize in different substrates — an ecological bet-hedging strategy that helps the population adapt to fluctuating nutrient availability.
+
+Our model captures a synthetic analogue of this behavior: cells construct channels specific to one nutrient type (A, B, or C), but may probabilistically switch their preferred type at division. This switching mimics the reversible PUL choice seen in Bacteroides, and under dynamic feeding regimes, we observe robust cycling between dominant phenotypes, consistent with population-level phase variation. This is especially evident in our fifth simulation, where asynchronous nutrient pulses and channel-dependent phage pressures create a selective landscape in which maintaining a diverse population of specialists outperforms any fixed strategy.
+
+Our findings complement recent work by Porter et al. (2017) and Martens et al. (2021), who showed that Bacteroides surface complexity enables individual cells to rapidly transition between phenotypes even in the absence of new mutations. The model also resonates with studies of outer membrane transporter heterogeneity in Bacteroides vulgatus, where single-cell RNA and proteomic analyses revealed striking intercellular diversity despite genetic identity.
+
+What is novel in our results is the demonstration that this kind of phenotypic switching does not require direct regulation or environmental sensing — stochastic switching at division, when paired with fluctuating environments, is sufficient to produce the rich heterogeneity and niche partitioning seen in gut communities. This echoes the findings of Tropini et al. (2018), who highlighted that spatial and temporal nutrient variation in the gut is a major driver of microbial diversification — not only through selection, but also by stabilizing phenotypic variety.
+
+Unexpected and Confirmatory Findings
+As expected, we found that deterministic assignment of channel type reduces population resilience under fluctuation, whereas stochastic inheritance of specialization confers stability and adaptability. However, we did not anticipate the self-organizing periodicity that emerged in mixed populations under asynchronous feeding. This dynamic resembles what is seen in vivo, where Bacteroides populations show temporal shifts in dominant PUL expression corresponding to host dietary patterns.
+
+Moreover, the observation that phenotypic convergence never fully occurred — i.e., no dominant channel type persisted across all timepoints — supports the hypothesis that phenotypic diversity is not just tolerated, but actively maintained in gut ecosystems. This aligns with long-term colonization studies in gnotobiotic mice, where clonal Bacteroides populations retained phenotypic heterogeneity over weeks despite stable host conditions.
+
+Limitations and Future Work
+While our model simulates stochastic switching in an abstract form (e.g., channel-type reassignment at division), future refinements could incorporate mechanistic rules based on real PUL switching rates or known transcriptional regulators (e.g., hybrid two-component systems). Moreover, we currently treat nutrient types as ecologically symmetric; in practice, different glycans vary in abundance, spatial accessibility, and energetic yield, which could further shape specialization strategies.
+
+A limitation of our current simulations is that switching is random and independent of environmental feedback. In Bacteroides, switching is likely a mix of stochasticity and sensing. Extending the model to allow conditional switching or partial memory (e.g., persistence of parent phenotype with environmental influence) would offer a closer match to biological systems.
+
+Future Directions
+Quantify and model reversible PUL switching in Bacteroides using real switching rates.
+
+Extend the model to simulate co-colonization with competing species, mimicking inter-microbial competition in the gut.
+
+Incorporate host factors, such as immune pressure or mucosal barriers, into spatial models.
+
+Explore mutualistic feedback loops, e.g., cross-feeding between different channel-specialists.
+
+Compare simulation outputs with single-cell expression data from in vivo or in vitro gut models.
+
+
+
+
+
+Methods
+We developed a custom agent-based model to simulate bacterial population dynamics under nutrient-limited conditions. The model was implemented in Python 3.11, with nutrient diffusion handled by a C++ backend via pybind11. Simulations were run on a 10×10 grid with discrete time steps, and bacterial cells acted as autonomous agents capable of growth, division, and nutrient uptake.
+
+Cell Behavior
+Each bacterium maintains an internal energy pool, constructs uptake channels, and divides when its energy exceeds a fixed threshold. Nutrients of type A (and later B and C) diffuse across the grid, and cells absorb local nutrients through channels of the corresponding type. Uptake scales with the number of channels, but each channel incurs a maintenance cost per timestep. Division is subject to probabilistic partitioning of energy and channels, with inheritance modeled either symmetrically (v1–v2) or with a bias drawn from a normal distribution (v4–v5, μ = 0.62, σ = 0.07). A switching probability at division determines whether daughter cells change channel specialization.
+
+Nutrient Environment
+Nutrients were globally replenished at fixed intervals ("meals"), with configurable pulse frequency and quantity. In v5, feeding times for each nutrient were randomized to simulate asynchronous environmental input. Nutrients diffuse uniformly on the grid at a constant rate (0.05), using a finite-difference scheme implemented in C++.
+
+Phage Dynamics
+In versions 4 and 5, phage populations were added. Each phage type (A, B, C) targets bacteria based on either their specialization (v4) or actual surface channel composition (v5). Phage particles infect susceptible cells with a fixed probability, leading to lysis after a latent period. New phages are released upon host death and diffuse on the grid similarly to nutrients.
+
+Simulation Settings and Parameters
+Default simulations used a grid size of 10×10, run for up to 1000 steps. Parameter sweeps were performed across channel cost (0–1.1), nutrient pulse frequency (1–500), and pulse amount (1–100), with 10 replicates per parameter set. Metrics collected included population size, mean channel count, mean IA index (defined as A / (A + B + C)), and Shannon entropy of channel distributions.
+
+Visualization and Analysis
+Output data were processed using Python libraries including NumPy, Pandas, and Matplotlib. Key metrics were plotted as time series, heatmaps, or averaged over replicates. Selected simulations were also rendered as animations to visualize the spatial and temporal evolution of phenotype distributions.
+

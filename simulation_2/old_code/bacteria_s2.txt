@@ -1,0 +1,58 @@
+import numpy as np
+import random
+
+class Bacterium:
+    def __init__(self, energy=3.0, uptake=1.0, channel_cost=0.3, cell_id=0):
+        self.energy = energy
+        self.uptake = uptake
+        self.channel_cost = channel_cost
+        self.base_metabolic_cost = 0.1
+        self.division_threshold = 5.0
+        self.channels = 0
+        self.id = cell_id
+        self.max_uptake = 2.0
+
+    def consume(self, nutrient):
+        uptake_amount = nutrient * self.uptake
+        self.energy += uptake_amount
+        self.energy -= uptake_amount * self.channel_cost
+        self.energy -= self.base_metabolic_cost * self.uptake
+
+        # Channel building logic
+        prob = self.build_channel_probability(nutrient)
+        if np.random.rand() < prob:
+            self.channels += 1
+            self.energy -= 0.2  # fixed cost for building a channel
+
+            # Uptake increase only if new channel is added
+            local_uptake_increase = 0.02 * np.log1p(nutrient + 1) * self.channels
+            self.uptake = min(self.uptake + local_uptake_increase, self.max_uptake)
+
+    def build_channel_probability(self, nutrient):
+        if self.channels == 0:
+            return 1.0  # Always build the first channel
+
+        # Boost nutrient influence and soften suppression
+        nutrient_drive = 1 - np.exp(-3.0 * nutrient)  # was -1.5, now steeper
+        suppression = self.channels / (self.channels + 20)  # was +4, now much softer
+
+        probability = nutrient_drive * (1 - suppression)
+        return max(0.0, min(1.0, probability))
+
+    def ready_to_divide(self):
+        return self.energy >= self.division_threshold
+
+    def divide(self, new_id):
+        energy_ratio = np.random.uniform(0.3, 0.7)
+        channel_ratio = np.random.uniform(0.3, 0.7)
+        child_energy = self.energy * energy_ratio
+        child_channels = int(self.channels * channel_ratio)
+        self.energy *= (1 - energy_ratio)
+        self.channels -= child_channels
+
+        return Bacterium(
+            energy=child_energy,
+            uptake=self.uptake,
+            channel_cost=self.channel_cost,
+            cell_id=new_id
+        )

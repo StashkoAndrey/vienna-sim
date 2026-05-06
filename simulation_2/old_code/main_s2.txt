@@ -1,0 +1,96 @@
+# === Modified main.py ===
+import matplotlib.pyplot as plt
+from grid_s2 import SimulationGrid
+from diffusion_cpp import diffuse
+import logging
+import numpy as np
+import csv
+import matplotlib.cm as cm
+import seaborn as sns
+import pandas as pd
+
+GRID_SIZE = 10
+MAX_STEPS = 1000
+DIFFUSION_RATE = 0.05
+INITIAL_NUTRIENT = 150.0
+REPLICATES = 10
+MEAL_INTERVAL = 100  # steps
+MEAL_TOTAL = 150.0     # total nutrients after refill
+
+logging.basicConfig(level=logging.INFO, format='%(message)s', force=True)
+
+def run_simulation(channel_cost):
+    grid = SimulationGrid(GRID_SIZE, channel_cost=channel_cost, initial_nutrient=INITIAL_NUTRIENT)
+    center = GRID_SIZE // 2
+    grid.place_bacterium(center, center)
+
+    population = []
+
+    logging.info(f"\n=== Running simulation for channel_cost = {channel_cost} ===")
+
+    for step in range(MAX_STEPS):
+        grid.step(step)
+        grid.nutrients = diffuse(grid.nutrients, DIFFUSION_RATE)
+        if step % MEAL_INTERVAL == 0:
+            grid.refill_nutrients(MEAL_TOTAL)
+
+        count = grid.count_bacteria()
+        total_energy = grid.total_energy()
+        total_nutrient = grid.total_nutrients()
+        logging.info(f"Step {step:04}: Count = {count}, Energy = {total_energy:.2f}, Nutrient = {total_nutrient:.2f}")
+        population.append(count)
+        if count == 0:
+            logging.info("All bacteria extinct. Ending simulation early.\n")
+            break
+
+    return population, grid.channel_time_series
+
+def main():
+    print("Starting simulation...")
+    channel_cost = 0.2
+    all_channel_time_series = []
+
+    for _ in range(REPLICATES):
+        _, time_series = run_simulation(channel_cost)
+        all_channel_time_series.append(time_series)
+
+    # Aggregate all replicates' time series
+    aggregated = {}
+    for series in all_channel_time_series:
+        for t, counts in series.items():
+            aggregated.setdefault(t, []).extend(counts)
+
+    timepoints = sorted(aggregated.keys())
+    max_channels = max((max(v) if v else 0) for v in aggregated.values())
+    heatmap_data = np.zeros((len(timepoints), max_channels + 1))
+    for t_idx, t in enumerate(timepoints):
+        for ch_count in aggregated[t]:
+            heatmap_data[t_idx, ch_count] += 1
+
+    # === Heatmap ===
+    plt.figure(figsize=(14, 6))
+    sns.heatmap(heatmap_data.T, cmap=cm.viridis, cbar_kws={'label': 'Cell Count'})
+    plt.xlabel('Time Step')
+    plt.ylabel('Number of Channels')
+    plt.title('Channel Count Distribution Over Time')
+    for step in range(0, MAX_STEPS, MEAL_INTERVAL):
+        plt.axvline(x=step, color='white', linestyle='--', linewidth=0.5)
+    plt.tight_layout()
+    plt.savefig("channel_distribution_heatmap.png")
+    print("Plot saved as channel_distribution_heatmap.png")
+
+    # === Stacked area plot ===
+    stacked_data = pd.DataFrame(heatmap_data, index=timepoints, columns=[str(i) for i in range(max_channels + 1)])
+    plt.figure(figsize=(14, 6))
+    stacked_data.plot.area(stacked=True, colormap='viridis', legend=False)
+    for step in range(0, MAX_STEPS, MEAL_INTERVAL):
+        plt.axvline(x=step, color='black', linestyle='--', linewidth=0.5)
+    plt.xlabel('Time Step')
+    plt.ylabel('Number of Bacteria')
+    plt.title('Population Dynamics by Channel Count')
+    plt.tight_layout()
+    plt.savefig("population_by_channel_area.png")
+    print("Plot saved as population_by_channel_area.png")
+
+if __name__ == '__main__':
+    main()

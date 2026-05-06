@@ -1,0 +1,111 @@
+# === Modified main.py ===
+import matplotlib.pyplot as plt
+from grid_s2 import SimulationGrid
+from diffusion_cpp import diffuse
+import logging
+import numpy as np
+import csv
+import matplotlib.cm as cm
+import seaborn as sns
+import pandas as pd
+
+GRID_SIZE = 10
+MAX_STEPS = 2000
+DIFFUSION_RATE = 0.05
+INITIAL_NUTRIENT = 150.0
+REPLICATES = 10
+MEAL_INTERVAL = 18  # steps
+MEAL_TOTAL = 150.0     # total nutrients after refill
+
+logging.basicConfig(level=logging.INFO, format='%(message)s', force=True)
+
+def run_simulation(channel_cost):
+    grid = SimulationGrid(GRID_SIZE, channel_cost=channel_cost, initial_nutrient=INITIAL_NUTRIENT)
+    center = GRID_SIZE // 2
+    grid.place_bacterium(center, center)
+
+    population = []
+
+    logging.info(f"\n=== Running simulation for channel_cost = {channel_cost} ===")
+
+    for step in range(MAX_STEPS):
+        grid.step(step)
+        grid.nutrients = diffuse(grid.nutrients, DIFFUSION_RATE)
+        if step % MEAL_INTERVAL == 0:
+            grid.refill_nutrients(MEAL_TOTAL)
+
+        count = grid.count_bacteria()
+        total_energy = grid.total_energy()
+        total_nutrient = grid.total_nutrients()
+        logging.info(f"Step {step:04}: Count = {count}, Energy = {total_energy:.2f}, Nutrient = {total_nutrient:.2f}")
+        population.append(count)
+        if count == 0:
+            logging.info("All bacteria extinct. Ending simulation early.\n")
+            break
+
+    return population, grid.channel_time_series
+
+def main():
+    print("Starting simulation...")
+    channel_cost = 0.4
+    all_channel_time_series = []
+
+    for _ in range(REPLICATES):
+        _, time_series = run_simulation(channel_cost)
+        all_channel_time_series.append(time_series)
+
+    # Aggregate all replicates' time series
+    aggregated = {}
+    for series in all_channel_time_series:
+        for t, counts in series.items():
+            aggregated.setdefault(t, []).extend(counts)
+
+    timepoints = sorted(aggregated.keys())
+    max_channels = max((max(v) if v else 0) for v in aggregated.values())
+    heatmap_data = np.zeros((len(timepoints), max_channels + 1))
+    for t_idx, t in enumerate(timepoints):
+        for ch_count in aggregated[t]:
+            heatmap_data[t_idx, ch_count] += 1
+
+    # === Heatmap ===
+    plt.figure(figsize=(14, 6))
+    sns.heatmap(heatmap_data.T, cmap=cm.viridis, cbar_kws={'label': 'Cell Count'})
+    plt.xlabel('Time Step')
+    plt.ylabel('Number of Channels')
+    plt.title('Channel Count Distribution Over Time')
+    for step in range(0, MAX_STEPS, MEAL_INTERVAL):
+        plt.axvline(x=step, color='white', linestyle='--', linewidth=0.5)
+    plt.tight_layout()
+    plt.savefig("channel_distribution_heatmap.png")
+    print("Plot saved as channel_distribution_heatmap.png")
+
+    # === Line plots in channel groups ===
+    stacked_data = pd.DataFrame(heatmap_data, index=timepoints, columns=[str(i) for i in range(max_channels + 1)])
+
+    # Group channels into bins of size 3
+    group_size = 3
+    channel_bins = [list(range(i, min(i + group_size, max_channels + 1))) for i in range(0, max_channels + 1, group_size)]
+
+    fig, axes = plt.subplots(nrows=len(channel_bins), ncols=1, figsize=(14, 3 * len(channel_bins)), sharex=True, sharey=True)
+
+    for ax, group in zip(axes, channel_bins):
+        label = f"Channels {group[0]}–{group[-1]}"
+        for ch in group:
+            ch_str = str(ch)
+            if ch_str in stacked_data.columns:
+                ax.plot(stacked_data.index, stacked_data[ch_str], label=f"Ch {ch_str}")
+        for step in range(0, MAX_STEPS, MEAL_INTERVAL):
+            ax.axvline(x=step, color='black', linestyle='--', linewidth=0.5)
+        ax.set_title(label)
+        ax.legend(loc='upper right', fontsize='small')
+
+    axes[-1].set_xlabel("Time Step")
+    for ax in axes:
+        ax.set_ylabel("Number of Bacteria")
+
+    plt.tight_layout()
+    plt.savefig("population_by_channel_subplots.png")
+    print("Plot saved as population_by_channel_subplots.png")
+
+if __name__ == '__main__':
+    main()

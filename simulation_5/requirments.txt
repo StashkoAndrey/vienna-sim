@@ -1,0 +1,6 @@
+numpy
+matplotlib
+pybind11
+scipy
+tqdm
+seaborn

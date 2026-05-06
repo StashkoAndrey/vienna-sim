@@ -1,0 +1,71 @@
+import matplotlib.pyplot as plt
+from grid import SimulationGrid
+from diffusion_cpp import diffuse
+import logging
+import numpy as np
+
+GRID_SIZE = 10
+MAX_STEPS = 1000
+DIFFUSION_RATE = 0.05
+INITIAL_NUTRIENT = 2.0
+REPLICATES = 10
+
+logging.basicConfig(level=logging.INFO, format='%(message)s', force=True)
+
+def run_simulation(channel_cost):
+    grid = SimulationGrid(GRID_SIZE, channel_cost=channel_cost, initial_nutrient=INITIAL_NUTRIENT)
+    center = GRID_SIZE // 2
+    grid.place_bacterium(center, center)
+
+    population = []
+
+    logging.info(f"\n=== Running simulation for channel_cost = {channel_cost} ===")
+
+    for step in range(MAX_STEPS):
+        grid.step()
+        grid.nutrients = diffuse(grid.nutrients, DIFFUSION_RATE)
+        count = grid.count_bacteria()
+        total_energy = grid.total_energy()
+        total_nutrient = grid.total_nutrients()
+        logging.info(f"Step {step:03}: Count = {count}, Energy = {total_energy:.2f}, Nutrient = {total_nutrient:.2f}")
+        population.append(count)
+        if count == 0:
+            logging.info("All bacteria extinct. Ending simulation early.\n")
+            break
+
+    return population
+
+
+def pad_curves(curves, fill_value=0):
+    max_len = max(len(c) for c in curves)
+    return np.array([c + [fill_value] * (max_len - len(c)) for c in curves])
+
+
+def main():
+    print("Starting simulation...")
+    costs = np.arange(0.0, 1.101, 0.005)  # High precision
+    mean_lifetimes = []
+    std_lifetimes = []
+
+    for cost in costs:
+        lifetimes = []
+        for _ in range(REPLICATES):
+            curve = run_simulation(round(cost, 3))
+            lifetimes.append(len(curve))
+
+        mean_lifetimes.append(np.mean(lifetimes))
+        std_lifetimes.append(np.std(lifetimes))
+
+    # Plotting the global trend of average lifetime vs channel cost
+    plt.figure(figsize=(10, 5))
+    plt.errorbar(costs, mean_lifetimes, yerr=std_lifetimes, fmt='-o', capsize=4)
+    plt.xlabel('Channel Cost')
+    plt.ylabel('Average Lifetime (steps)')
+    plt.title('Bacterial Lifetime vs Channel Cost')
+    plt.grid(True)
+    plt.savefig("lifetime_vs_cost.png")
+    print("Plot saved as lifetime_vs_cost.png")
+
+
+if __name__ == '__main__':
+    main()

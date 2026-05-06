@@ -1,0 +1,20 @@
+# === Plot average energy over time ===
+    # Pad each replicate’s energy series to length MAX_STEPS, then average
+    padded = [
+        np.pad(series, (0, MAX_STEPS - len(series)), 
+            mode='constant', constant_values=0)
+        for series in all_energy
+    ]
+    avg_en = np.mean(padded, axis=0)
+
+    plt.figure(figsize=(10,4))
+    plt.plot(range(MAX_STEPS), avg_en, label='Avg Energy')
+    for step in range(0, MAX_STEPS, MEAL_INTERVAL):
+        plt.axvline(x=step, color='gray', linestyle='--', linewidth=0.5)
+    plt.xlabel('Time Step')
+    plt.ylabel('Avg Energy of Bacteria')
+    plt.title('Average Energy Over Time')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('average_energy.png')
+    print('Plot saved as average_energy.png')

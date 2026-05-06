@@ -1,0 +1,53 @@
+﻿# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Compiled Python/C++ binaries
+*.pyd
+*.so
+*.dll
+*.exe
+*.obj
+*.exp
+*.lib
+*.pdb
+*.ilk
+
+# Build folders
+build/
+Debug/
+Release/
+x64/
+CMakeFiles/
+.cmake/
+CMakeCache.txt
+cmake_install.cmake
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.tlog
+*.recipe
+*.bin
+*.stamp
+
+# Generated data / outputs
+*.csv
+*.png
+*.gif
+*.pdf
+*.pkl
+*.rar
+*.log
+simulation_results.json
+snapshot_run*.pkl
+simulation_data*.pkl
+
+# IDE / editor local files
+.vscode/
+.cursor/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
