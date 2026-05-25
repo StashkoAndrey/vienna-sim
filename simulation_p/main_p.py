@@ -200,7 +200,7 @@ def main():
     with open('simulation_results_p.pkl', 'wb') as f:
         pickle.dump(aggregated, f)
 
-    print("Simulation complete → simulation_results_p.pkl")
+    print("Simulation complete -> simulation_results_p.pkl")
 
 if __name__ == '__main__':
     main()

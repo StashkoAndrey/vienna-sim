@@ -1,6 +1,6 @@
 # plots_5.py  ── consistent colour palette for A/B/C
 import pickle, numpy as np, matplotlib.pyplot as plt, seaborn as sns
-from parameters_extracted import (
+from parameters_extracted_5 import (
     MAX_STEPS, REPLICATES,
     REFILL_INTERVAL_A, REFILL_INTERVAL_B, REFILL_INTERVAL_C,
     DELTA_T

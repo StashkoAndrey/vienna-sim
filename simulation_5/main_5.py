@@ -11,7 +11,7 @@ import numpy as np
 
 from grid_5 import SimulationGrid
 from diffusion_cpp import diffuse
-from parameters_extracted import (
+from parameters_extracted_5 import (
     # grid / run
     GRID_SIZE, MAX_STEPS, REPLICATES, CHANNEL_COST,
     # diffusion

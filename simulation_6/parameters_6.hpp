@@ -3,8 +3,8 @@
 
 // Grid and simulation structure
 constexpr int GRID_SIZE = 10;
-constexpr int MAX_STEPS = 1000;
-constexpr int REPLICATES = 10;
+constexpr int MAX_STEPS = 200;
+constexpr int REPLICATES = 20;
 
 // Nutrient refill intervals and amounts for A vs. B vs. C
 constexpr int REFILL_INTERVAL_A = 99;
@@ -29,7 +29,7 @@ constexpr float SUPPRESSION_K = 100.0f;
 constexpr float DEATH_PROB = 0.001f;
 
 // Division switching
-constexpr float DIVISION_SWITCH_PROB = 0.5f;
+constexpr float DIVISION_SWITCH_PROB = 0.0;
 
 // Biased‐division parameters
 constexpr float DIVISION_BIAS_MEAN = 0.62f;
@@ -65,6 +65,6 @@ constexpr float INITIAL_PHAGE_C_CONCENTRATION = 1.0f;
 constexpr float MAJOR_MEAL_FRACTION = 1.0f;
 
 // Logging
-constexpr bool LOG_STEPS = true;
+constexpr bool LOG_STEPS = false;
 
 #endif // PARAMETERS_HPP

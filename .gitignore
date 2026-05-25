@@ -2,52 +2,56 @@
 __pycache__/
 *.pyc
 *.pyo
-
-# Compiled Python/C++ binaries
 *.pyd
-*.so
-*.dll
+
+# C/C++ / Windows build artifacts
 *.exe
+*.o
 *.obj
-*.exp
+*.dll
+*.so
+*.a
 *.lib
 *.pdb
-*.ilk
 
-# Build folders
-build/
-Debug/
-Release/
-x64/
-CMakeFiles/
-.cmake/
-CMakeCache.txt
-cmake_install.cmake
-*.sln
-*.vcxproj
-*.vcxproj.filters
-*.tlog
-*.recipe
-*.bin
-*.stamp
-
-# Generated data / outputs
+# Generated simulation outputs
 *.csv
+*.tsv
 *.png
+*.jpg
+*.jpeg
 *.gif
-*.pdf
 *.pkl
-*.rar
+*.pickle
+*.pckl
+*.npy
+*.npz
+*.parquet
+*.h5
+*.hdf5
+
+# Logs / temp files
 *.log
-simulation_results.json
-snapshot_run*.pkl
-simulation_data*.pkl
+compile*_log.txt
+*.tmp
+*.bak
 
-# IDE / editor local files
+# Output folders
+outputs/
+output/
+results/
+result/
+timeseries/
+plots/
+figures/
+analysis_6_outputs*/
+sweep*/
+sweep_*/
+*_sweep*/
+*_results*/
+
+# Editor/system files
 .vscode/
-.cursor/
-*.swp
-
-# OS files
+.idea/
 .DS_Store
 Thumbs.db

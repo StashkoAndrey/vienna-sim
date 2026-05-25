@@ -1,7 +1,7 @@
 # grid_5.py
 import random, numpy as np
 from bacteria_5 import Bacterium
-from parameters_extracted import (
+from parameters_extracted_5 import (
     INITIAL_NUTRIENT, UPTAKE_PER_CHANNEL, INITIAL_ENERGY,
     DIFFUSION_RATE, PHAGE_A_DIFFUSION_RATE, PHAGE_B_DIFFUSION_RATE, PHAGE_C_DIFFUSION_RATE
 )
